@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import os
 import sys
-import numpy
 
 from setuptools import Command, Extension, setup
 
@@ -87,10 +86,16 @@ if ((FLAG_COVERAGE in sys.argv or os.environ.get('CYTHON_COVERAGE', None))
 if any([arg in CMDS_NOCYTHONIZE for arg in sys.argv]):
     ext_modules = []
 else:
+    numpy_dir = None
+    try:
+        import numpy
+        numpy_dir = numpy.get_include()
+    except ImportError:
+        pass
     extension = Extension('{}._{}'.format(NAME, NAME),
                           sources=[CYTHON_FNAME],
                           define_macros=DEFINE_MACROS,
-                          include_dirs=[numpy.get_include(),])
+                          include_dirs=[numpy_dir,])
     ext_modules = [extension]
     if cythonize:
         ext_modules = cythonize(extension,
